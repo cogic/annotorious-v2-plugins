@@ -129,10 +129,12 @@ export default class ImEditablePolygon extends EditableShape {
   drawMidpoint = (x, y) => {
     const handle = document.createElementNS(SVG_NAMESPACE, 'circle');
     handle.setAttribute('class', 'a9s-midpoint');
+
+    const radius = this.scale * (this.config.handleRadius || 6) * 0.8;
     
     handle.setAttribute('cx', x);
     handle.setAttribute('cy', y);
-    handle.setAttribute('r', 5 * this.scale);
+    handle.setAttribute('r', radius);
 
     return handle;
   }
@@ -287,7 +289,8 @@ export default class ImEditablePolygon extends EditableShape {
     this.cornerHandles.map(this.scaleHandle);
 
     this.midpoints.map(midpoint => {
-      midpoint.setAttribute('r', 5 * this.scale);
+      const radius = this.scale * (this.config.handleRadius || 6) * 0.8;
+      midpoint.setAttribute('r', radius);
     });
   }
 
