@@ -224,7 +224,7 @@ export default class ImEditablePolygon extends EditableShape {
     const handleIdx = this.cornerHandles.indexOf(this.grabbedElement);
     
     // Update selection
-    if (evt.ctrlKey) {
+    if (evt.ctrlKey && this.config.enableMultiPointSelection !== false) {
       this.selected = Array.from(new Set([...this.selected, handleIdx]));
     } else if (!this.selected.includes(handleIdx)) {
       this.selected = [ handleIdx ];
@@ -245,19 +245,27 @@ export default class ImEditablePolygon extends EditableShape {
     });
 
     const updatedPoints = getPoints(this.shape).map((pt, idx) => {
-      if (idx === handleIdx) {
+      let position;
+
+      if (idx === handleIdx) {console.log(pos)
         // The dragged point
-        return pos;
+        position = pos;
       } else if (this.selected.includes(idx)) {
         const { dx, dy } = distances.find(d => d.index === idx);
-        return {
+        position = {
           x: pos.x + dx,
           y: pos.y + dy
         }
       } else {
         // Unchanged
-        return pt;
+        position = pt;
       }
+
+      const { naturalWidth, naturalHeight } = this.env.image;
+      return {
+        x: Math.min(Math.max(position.x, 0), naturalWidth),
+        y: Math.min(Math.max(position.y, 0), naturalHeight),
+      };
     });
 
     this.setPoints(updatedPoints);
@@ -300,7 +308,7 @@ export default class ImEditablePolygon extends EditableShape {
     if (!isDrag) {
       const idx = this.cornerHandles.indexOf(handle);
 
-      if (evt?.ctrlKey) {
+      if (evt?.ctrlKey && this.config.enableMultiPointSelection !== false ) {
         // Toggle
         if (this.selected.includes(idx))
           this.selected = this.selected.filter(i => i !== idx);
