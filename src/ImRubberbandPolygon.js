@@ -94,15 +94,15 @@ export default class ImRubberbandPolygon extends ToolLike {
 
     const d = this.getDistanceToStart();
 
-    // Display close handle if distance < 40px
-    if (d < 40) {
+    // Display close handle if distance is close
+    if (d <= (this.config.handleRadius || 6)) {
       this.closeHandle.style.display = null;
     } else { 
       this.closeHandle.style.display = 'none';
     }
 
     // Snap if nearby
-    if (d < 20) {
+    if (d <= (this.config.handleRadius || 6)) {
       this.mousepos = this.points[0];
     }
 
