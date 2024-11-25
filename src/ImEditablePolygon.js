@@ -61,6 +61,11 @@ export default class ImEditablePolygon extends EditableShape {
     this.lastMouseDown = null;
   }
 
+  _isCornerDistanceTooSmall = (thisCorner, nextCorner) => {
+    const minDistance = this.scale * (this.config.handleRadius || 6) * 4;
+    return Math.abs(thisCorner.x - nextCorner.x) < minDistance && Math.abs(thisCorner.y - nextCorner.y) < minDistance;
+  }
+
   createCornerHandle = pt => {
     const handle = this.drawHandle(pt.x, pt.y);
     handle.addEventListener('mousedown', this.onGrab(handle));
@@ -80,7 +85,7 @@ export default class ImEditablePolygon extends EditableShape {
     const x = (thisCorner.x + nextCorner.x) / 2;
     const y = (thisCorner.y + nextCorner.y) / 2;
 
-    const handle = this.drawMidpoint(x, y);
+    const handle = this.drawMidpoint(x, y, this._isCornerDistanceTooSmall(thisCorner, nextCorner));
     handle.addEventListener('mousedown', this.onGrab(handle));
 
     this.shape.appendChild(handle);
@@ -126,7 +131,7 @@ export default class ImEditablePolygon extends EditableShape {
     super.destroy();
   }
 
-  drawMidpoint = (x, y) => {
+  drawMidpoint = (x, y, isDistanceTooSmall) => {
     const handle = document.createElementNS(SVG_NAMESPACE, 'circle');
     handle.setAttribute('class', 'a9s-midpoint');
 
@@ -135,6 +140,12 @@ export default class ImEditablePolygon extends EditableShape {
     handle.setAttribute('cx', x);
     handle.setAttribute('cy', y);
     handle.setAttribute('r', radius);
+
+    if (isDistanceTooSmall && this.config.hideMidpointOnSmallDistance) {
+      handle.style.display = 'none';
+    } else {
+      handle.style.display = null;
+    }
 
     return handle;
   }
@@ -247,7 +258,7 @@ export default class ImEditablePolygon extends EditableShape {
     const updatedPoints = getPoints(this.shape).map((pt, idx) => {
       let position;
 
-      if (idx === handleIdx) {console.log(pos)
+      if (idx === handleIdx) {
         // The dragged point
         position = pos;
       } else if (this.selected.includes(idx)) {
@@ -300,6 +311,8 @@ export default class ImEditablePolygon extends EditableShape {
       const radius = this.scale * (this.config.handleRadius || 6) * 0.8;
       midpoint.setAttribute('r', radius);
     });
+
+    this.setPoints(getPoints(this.shape));
   }
 
   onSelectCorner = handle => evt => {
@@ -364,6 +377,12 @@ export default class ImEditablePolygon extends EditableShape {
       const handle = this.midpoints[i];
       handle.setAttribute('cx', x);
       handle.setAttribute('cy', y);
+
+      if (this._isCornerDistanceTooSmall(thisCorner, nextCorner) && this.config.hideMidpointOnSmallDistance) {
+        handle.style.display = 'none';
+      } else {
+        handle.style.display = null;
+      }
     }
 
     // Mask
