@@ -389,7 +389,7 @@ export default class ImEditablePolygon extends EditableShape {
     this.mask.redraw();
 
     // Resize formatter elements
-    const { x, y, width, height } = outer.getBBox();
+    const { x, y, width, height } = inner.getBBox();
     setFormatterElSize(this.shape, x, y, width, height);
   }
 
