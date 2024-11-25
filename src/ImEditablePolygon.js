@@ -49,7 +49,7 @@ export default class ImEditablePolygon extends EditableShape {
     g.appendChild(this.container);
 
     // Format needs to go after everything is added to the DOM
-    format(this.shape, annotation, config.formatter);
+    format(this.shape, annotation, config.formatters, this.shape);
 
     // Grabbed element and grab offset
     this.grabbedElement = null;
