@@ -43,6 +43,10 @@
   fill:#fff;
 }
 
+.a9s-annotation.improved-polygon.editable .a9s-handle.deletable .a9s-handle-inner {
+  fill: red;
+}
+
 /** Midpoints **/
 .a9s-annotation.improved-polygon.editable .a9s-midpoint {
   display:none;

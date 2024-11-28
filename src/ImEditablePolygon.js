@@ -71,6 +71,11 @@ export default class ImEditablePolygon extends EditableShape {
     handle.addEventListener('mousedown', this.onGrab(handle));
     handle.addEventListener('click', this.onSelectCorner(handle));
 
+    if (this.config.polygonCornerDeletable) {
+      handle.addEventListener('mouseenter', this.onEnterCorner(handle));
+      handle.addEventListener('mouseleave', this.onLeaveCorner(handle));
+    }
+
     this.scaleHandle(handle);
 
     this.shape.appendChild(handle);
@@ -154,7 +159,9 @@ export default class ImEditablePolygon extends EditableShape {
     return this.shape;
   }
 
-  onAddPoint = pos => {
+  onAddPoint = (pos, evt) => {
+    if (evt.altKey && this.config.polygonCornerDeletable) return;
+
     const corners = getPoints(this.shape);
 
     const idx = this.midpoints.indexOf(this.grabbedElement) + 1;
@@ -195,6 +202,41 @@ export default class ImEditablePolygon extends EditableShape {
     this.setPoints(updatedCorners);
   }
 
+  onRemovePoint = handle => {
+    if (this.cornerHandles.length <= 3) return;
+
+    const handleIdx = this.cornerHandles.indexOf(handle);
+
+    // Updated polygon points
+    const updatedCorners = getPoints(this.shape);
+    updatedCorners.splice(handleIdx, 1);
+
+    // Delete useless midpoint
+    this.midpoints.splice(handleIdx, 1).forEach((minPointElement) => {
+      minPointElement.parentNode.removeChild(minPointElement);
+    });
+
+    // Delete old corner handle
+    this.cornerHandles.splice(handleIdx, 1);
+    handle.parentNode.removeChild(handle);
+
+    // Clear corner dragged element + selection
+    if (this.grabbedElement === handle) {
+      this.grabbedElement = null;
+    }
+    const handleIdxofSelected = this.selected.indexOf(handleIdx);
+    if (handleIdxofSelected >= 0) {
+      this.selected.splice(handleIdxofSelected, 1);
+    }
+
+    // Update shape
+    this.setPoints(updatedCorners);
+
+    // Update SVG
+    const points = getPoints(this.shape).map(({x, y}) => [x, y]);
+    this.emit('update', toSVGTarget(points, this.env.image));
+  }
+
   onGrab = element => evt => {
     if (evt.button !== 0) return;  // left click
 
@@ -232,6 +274,8 @@ export default class ImEditablePolygon extends EditableShape {
   }
 
   onMoveCornerHandle = (pos, evt) => {
+    if (evt.altKey && this.config.polygonCornerDeletable) return;
+
     const handleIdx = this.cornerHandles.indexOf(this.grabbedElement);
     
     // Update selection
@@ -291,7 +335,7 @@ export default class ImEditablePolygon extends EditableShape {
       } else if (hasClass(this.grabbedElement, 'a9s-handle')) {
         this.onMoveCornerHandle(pos, evt);
       } else if (hasClass(this.grabbedElement, 'a9s-midpoint')) {
-        this.onAddPoint(pos);
+        this.onAddPoint(pos, evt);
       }
 
       const points = getPoints(this.shape).map(({x, y}) => [x, y]);
@@ -316,6 +360,11 @@ export default class ImEditablePolygon extends EditableShape {
   }
 
   onSelectCorner = handle => evt => {
+    if (evt?.altKey && this.config.polygonCornerDeletable) {
+      this.onRemovePoint(handle);
+      return;
+    }
+
     const isDrag = new Date().getTime() - this.lastMouseDown > 250;
 
     if (!isDrag) {
@@ -336,6 +385,18 @@ export default class ImEditablePolygon extends EditableShape {
       }
 
       this.setPoints(getPoints(this.shape));
+    }
+  }
+
+  onEnterCorner = handle => evt => {
+    if (evt.altKey && this.cornerHandles.length > 3 && !hasClass(handle, 'deletable')) {
+      addClass(handle, 'deletable');
+    }
+  }
+
+  onLeaveCorner = handle => evt => {
+    if (hasClass(handle, 'deletable')) {
+      removeClass(handle, 'deletable');
     }
   }
 
