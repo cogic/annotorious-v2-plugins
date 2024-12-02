@@ -28,6 +28,7 @@ export default class ImEditablePolygon extends EditableShape {
     // The editable shape group
     this.shape = drawEmbeddedSVG(annotation);
     this.shape.setAttribute('class', 'a9s-annotation editable selected improved-polygon');
+    this.shape.setAttribute('data-id', annotation.id);
 
     const innerPolygon = this.shape.querySelector('.a9s-inner');
     innerPolygon.addEventListener('mousedown', this.onGrab(this.shape));
