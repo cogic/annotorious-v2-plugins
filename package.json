@@ -1,11 +1,11 @@
 {
-  "name": "@recogito/annotorious-better-polygon",
-  "version": "0.2.1",
+  "name": "@cogic/annotorious-better-polygon",
+  "version": "0.2.2",
   "description": "An improved polygon editing tool with more features and better usability",
   "main": "dist/annotorious-better-polygon.js",
   "scripts": {
     "start": "SET NODE_OPTIONS=--openssl-legacy-provider && webpack serve --open --mode=development",
-    "build": "webpack --mode=production"
+    "build": "SET NODE_OPTIONS=--openssl-legacy-provider && webpack --mode=production"
   },
   "repository": {
     "type": "git",
