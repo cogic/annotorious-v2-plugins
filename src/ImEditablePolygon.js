@@ -1,8 +1,8 @@
-import EditableShape from '@recogito/annotorious/src/tools/EditableShape';
-import { SVG_NAMESPACE, addClass, hasClass, removeClass } from '@recogito/annotorious/src/util/SVG';
-import { drawEmbeddedSVG } from '@recogito/annotorious/src/selectors/EmbeddedSVG';
-import { format, setFormatterElSize } from '@recogito/annotorious/src/util/Formatting';
-import Mask from '@recogito/annotorious/src/tools/polygon/PolygonMask';
+import EditableShape from '@cogic/annotorious/src/tools/EditableShape';
+import { SVG_NAMESPACE, addClass, hasClass, removeClass } from '@cogic/annotorious/src/util/SVG';
+import { drawEmbeddedSVG } from '@cogic/annotorious/src/selectors/EmbeddedSVG';
+import { format, setFormatterElSize } from '@cogic/annotorious/src/util/Formatting';
+import Mask from '@cogic/annotorious/src/tools/polygon/PolygonMask';
 
 import { toSVGTarget } from './ImRubberbandPolygonTool';
 

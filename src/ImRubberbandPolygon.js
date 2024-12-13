@@ -1,6 +1,6 @@
-import { SVG_NAMESPACE } from '@recogito/annotorious/src/util/SVG';
-import { Selection, ToolLike } from '@recogito/annotorious/src/tools/Tool';
-import Mask from '@recogito/annotorious/src/tools/polygon/PolygonMask';
+import { SVG_NAMESPACE } from '@cogic/annotorious/src/util/SVG';
+import { Selection, ToolLike } from '@cogic/annotorious/src/tools/Tool';
+import Mask from '@cogic/annotorious/src/tools/polygon/PolygonMask';
 
 import { toSVGTarget } from './ImRubberbandPolygonTool';
 
