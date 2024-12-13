@@ -1,5 +1,5 @@
-import Tool from '@recogito/annotorious/src/tools/Tool';
-import { isTouchDevice } from '@recogito/annotorious/src/util/Touch';
+import Tool from '@cogic/annotorious/src/tools/Tool';
+import { isTouchDevice } from '@cogic/annotorious/src/util/Touch';
 
 import ImEditablePolygon from './ImEditablePolygon';
 import ImRubberbandPolygon from './ImRubberbandPolygon';
