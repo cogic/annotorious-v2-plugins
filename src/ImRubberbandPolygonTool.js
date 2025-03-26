@@ -58,6 +58,13 @@ export default class ImRubberbandPolygonTool extends Tool {
     }
   }
 
+  pop = () => {
+    this.rubberband?.pop();
+    this.onMouseMove(...this.rubberband?.mousepos);
+  }
+
+  getPoints = () => this.rubberband?.points;
+
   onDblClick = () => {
     if (this.rubberband?.points.length > 2) {
       this.rubberband.close();

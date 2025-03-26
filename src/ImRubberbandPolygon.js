@@ -152,7 +152,9 @@ export default class ImRubberbandPolygon extends ToolLike {
   /** Removes last corner **/
   pop = () => {
     this.points.pop();
-    this.setPoints(this.points);
+    if (this.points.length) {
+      this.setPoints(this.points);
+    }
     this.mask.redraw();
   }
 
