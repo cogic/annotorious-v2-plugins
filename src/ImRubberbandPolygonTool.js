@@ -66,13 +66,14 @@ export default class ImRubberbandPolygonTool extends Tool {
 
   getPoints = () => this.rubberband?.points;
 
-  onDblClick = () => {
+  onDblClick = (_x, _y, evt) => {
     if (this.rubberband?.points.length > 2) {
       if (
+        !(evt.ctrlKey && evt.shiftKey && this.config.enableIntersectionWithShortcut) &&
         this.config.preventIntersection &&
         hasIntersectingEdges([...this.rubberband.points, this.rubberband.mousepos].map((point) => ({ x: point[0], y: point[1] })))
       ) {
-        this.config.onPreventedIntersection?.()
+        this.config.onPreventedIntersection?.();
         return;
       }
 
@@ -90,7 +91,7 @@ export default class ImRubberbandPolygonTool extends Tool {
     this.rubberband.dragTo([constrainX, constrainY]);
   }
 
-  onMouseUp = () => {
+  onMouseUp = (_x, _y, evt) => {
     const { width, height } = this.rubberband.getBoundingClientRect();
 
     const minWidth = this.config.minSelectionWidth || 4;
@@ -98,10 +99,11 @@ export default class ImRubberbandPolygonTool extends Tool {
     
     if (width >= minWidth || height >= minHeight) {
       if (
+        !(evt.ctrlKey && evt.shiftKey && this.config.enableIntersectionWithShortcut) &&
         this.config.preventIntersection &&
         hasIntersectingEdges([...this.rubberband.points, this.rubberband.mousepos].map((point) => ({ x: point[0], y: point[1] })))
       ) {
-        this.config.onPreventedIntersection?.()
+        this.config.onPreventedIntersection?.();
         return;
       }
 

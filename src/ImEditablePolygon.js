@@ -325,8 +325,12 @@ export default class ImEditablePolygon extends EditableShape {
       };
     });
 
-    if (this.config.preventIntersection && hasIntersectingEdges([...updatedPoints, updatedPoints[0]])) {
-      this.config.onPreventedIntersection?.()
+    if (
+      !(evt.ctrlKey && evt.shiftKey && this.config.enableIntersectionWithShortcut) &&
+      this.config.preventIntersection &&
+      hasIntersectingEdges([...updatedPoints, updatedPoints[0]])
+    ) {
+      this.config.onPreventedIntersection?.();
       return;
     }
 

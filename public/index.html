@@ -35,8 +35,10 @@
           crosshair: true,
           allowEmpty: true,
           hideMidpointOnSmallDistance: true,
+          enableMultiPointSelection: false,
           polygonCornerDeletable: true,
           preventIntersection: true,
+          enableIntersectionWithShortcut: true,
           onPreventedIntersection: function() {
             console.log('Intersection prevented');
           }
