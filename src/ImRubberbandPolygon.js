@@ -3,6 +3,7 @@ import { Selection, ToolLike } from '@cogic/annotorious/src/tools/Tool';
 import Mask from '@cogic/annotorious/src/tools/polygon/PolygonMask';
 
 import { toSVGTarget } from './ImRubberbandPolygonTool';
+import { hasIntersectingEdges } from './utils';
 
 export default class ImRubberbandPolygon extends ToolLike {
 
@@ -59,7 +60,18 @@ export default class ImRubberbandPolygon extends ToolLike {
     g.appendChild(this.container);
   }
 
-  addPoint = () => {
+  addPoint = (evt) => {
+    const newPoints = [...this.points, this.mousepos];
+
+    if (
+      !(evt.ctrlKey && evt.shiftKey && this.config.enableIntersectionWithShortcut) &&
+      this.config.preventIntersection &&
+      hasIntersectingEdges([...newPoints].map((point) => ({ x: point[0], y: point[1] })))
+    ) {
+      this.config.onPreventedIntersection?.();
+      return;
+    }
+
     if (this.isClosable()) {
       // Close, don't add
       this.close();
@@ -70,7 +82,7 @@ export default class ImRubberbandPolygon extends ToolLike {
       const dist = Math.pow(x - lastCorner[0], 2) + Math.pow(y - lastCorner[1], 2);
       
       if (dist > 4) {
-        this.points = [...this.points, this.mousepos];
+        this.points = newPoints;
         this.setPoints(this.points);   
         this.mask.redraw();
       }
