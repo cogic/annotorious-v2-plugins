@@ -5,6 +5,7 @@ import { format, setFormatterElSize } from '@cogic/annotorious/src/util/Formatti
 import Mask from '@cogic/annotorious/src/tools/polygon/PolygonMask';
 
 import { toSVGTarget } from './ImRubberbandPolygonTool';
+import { hasIntersectingEdges } from './utils';
 
 const getPoints = shape =>
   Array.from(shape.querySelector('.a9s-inner').points);
@@ -323,6 +324,11 @@ export default class ImEditablePolygon extends EditableShape {
         y: Math.min(Math.max(position.y, 0), naturalHeight),
       };
     });
+
+    if (this.config.preventIntersection && hasIntersectingEdges([...updatedPoints, updatedPoints[0]])) {
+      this.config.onPreventedIntersection?.()
+      return;
+    }
 
     this.setPoints(updatedPoints);
   }

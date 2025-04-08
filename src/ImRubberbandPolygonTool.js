@@ -3,6 +3,7 @@ import { isTouchDevice } from '@cogic/annotorious/src/util/Touch';
 
 import ImEditablePolygon from './ImEditablePolygon';
 import ImRubberbandPolygon from './ImRubberbandPolygon';
+import { hasIntersectingEdges } from './utils';
 
 const isTouch = isTouchDevice();
 
@@ -67,6 +68,14 @@ export default class ImRubberbandPolygonTool extends Tool {
 
   onDblClick = () => {
     if (this.rubberband?.points.length > 2) {
+      if (
+        this.config.preventIntersection &&
+        hasIntersectingEdges([...this.rubberband.points, this.rubberband.mousepos].map((point) => ({ x: point[0], y: point[1] })))
+      ) {
+        this.config.onPreventedIntersection?.()
+        return;
+      }
+
       this.rubberband.close();
       this.stop();
     }
@@ -88,6 +97,14 @@ export default class ImRubberbandPolygonTool extends Tool {
     const minHeight = this.config.minSelectionHeight || 4;
     
     if (width >= minWidth || height >= minHeight) {
+      if (
+        this.config.preventIntersection &&
+        hasIntersectingEdges([...this.rubberband.points, this.rubberband.mousepos].map((point) => ({ x: point[0], y: point[1] })))
+      ) {
+        this.config.onPreventedIntersection?.()
+        return;
+      }
+
       this.rubberband.addPoint();
     } else if (!this._startOnSingleClick) {
       this.emit('cancel');

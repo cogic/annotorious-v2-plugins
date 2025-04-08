@@ -36,6 +36,10 @@
           allowEmpty: true,
           hideMidpointOnSmallDistance: true,
           polygonCornerDeletable: true,
+          preventIntersection: true,
+          onPreventedIntersection: function() {
+            console.log('Intersection prevented');
+          }
         });
 
         Annotorious.BetterPolygon(anno);
