@@ -82,13 +82,18 @@ export default class ImRubberbandPolygonTool extends Tool {
     }
   }
 
-  onMouseMove = (x, y) => {
+  onMouseMove = (x, y, evt) => {
     // Constrain the initial coordinates (x, y) to be within the image bounds
     const { naturalWidth, naturalHeight } = this.env.image;
     const constrainX = Math.min(Math.max(x, 0), naturalWidth);
     const constrainY = Math.min(Math.max(y, 0), naturalHeight);
 
     this.rubberband.dragTo([constrainX, constrainY]);
+
+    if (this.config.continuousDrawingWithMouse && evt.buttons === 1) {
+      // Continuous drawing
+      this.onMouseUp(x, y, evt)
+    }
   }
 
   onMouseUp = (_x, _y, evt) => {

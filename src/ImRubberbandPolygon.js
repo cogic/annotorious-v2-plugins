@@ -58,6 +58,8 @@ export default class ImRubberbandPolygon extends ToolLike {
     this.container.appendChild(this.selection);
 
     g.appendChild(this.container);
+
+    this.svg.addEventListener('keydown', this.onKeyDown);
   }
 
   addPoint = (evt) => {
@@ -95,6 +97,8 @@ export default class ImRubberbandPolygon extends ToolLike {
   }
 
   destroy = () => {
+    this.svg.removeEventListener('keydown', this.onKeyDown);
+
     this.container.parentNode.removeChild(this.container);
   }
 
@@ -182,6 +186,13 @@ export default class ImRubberbandPolygon extends ToolLike {
 
     const points = arr.map(t => `${t[0]},${t[1]}`).join(' ');
     this.rubberband.setAttribute('points', points);
+  }
+
+  onKeyDown = evt => {
+    if (this.config.addPointWithShortcut && this.rubberband && evt.code == 'Space' && this.addPoint(evt)) {
+      evt.preventDefault();
+      evt.stopImmediatePropagation();
+    }
   }
 
 }

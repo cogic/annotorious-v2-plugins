@@ -13,6 +13,34 @@ const getPoints = shape =>
 const getBBox = shape =>
   shape.querySelector('.a9s-inner').getBBox();
 
+const distance = (point1, point2) => {
+  const dx = point1[0] - point2[0];
+  const dy = point1[1] - point2[1];
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+const reducePolygonPoints = (points, threshold) => {
+  if (points.length < 3) return points; // 多边形至少需要三个顶点
+
+  const reducedPoints = [points[0]]; // 保留第一个顶点
+
+  for (let i = 1; i < points.length; i++) {
+    const prevVertex = reducedPoints[reducedPoints.length - 1];
+    const currentVertex = points[i];
+
+    if (distance(prevVertex, currentVertex) >= threshold) {
+      reducedPoints.push(currentVertex);
+    }
+  }
+
+  // 检查最后一个顶点与第一个顶点的距离
+  if (distance(reducedPoints[reducedPoints.length - 1], reducedPoints[0]) < threshold) {
+    reducedPoints.pop();
+  }
+
+  return reducedPoints;
+};
+
 export default class ImEditablePolygon extends EditableShape {
 
   constructor(annotation, g, config, env) {
@@ -255,6 +283,35 @@ export default class ImEditablePolygon extends EditableShape {
       evt.stopImmediatePropagation();
     }
   }
+
+  reducePoints = (threshold = 0) => {
+    const updatedPoints = reducePolygonPoints(
+      getPoints(this.shape).map((a) => [a.x, a.y]),
+      threshold
+    ).map((a) => ({ x: a[0], y: a[1] }));
+    if (updatedPoints.length < 3) return;
+
+    // Delete useless midpoint
+    this.midpoints.splice(updatedPoints.length).forEach((minPointElement) => {
+      minPointElement.parentNode.removeChild(minPointElement);
+    });
+
+    // Delete old corner handle
+    this.cornerHandles.splice(updatedPoints.length).forEach((handle) => {
+      handle.parentNode.removeChild(handle);
+    });
+
+    // Clear corner dragged element + selection
+    this.grabbedElement = null;
+    this.selected.splice(0);
+
+    // Update shape
+    this.setPoints(updatedPoints);
+
+    // Update SVG
+    const points = getPoints(this.shape).map(({ x, y }) => [x, y]);
+    this.emit('update', toSVGTarget(points, this.env.image));    
+  };
 
   onMoveShape = pos => {
     const constrain = (coord, delta, max) =>
