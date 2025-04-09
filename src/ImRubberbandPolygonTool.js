@@ -90,7 +90,7 @@ export default class ImRubberbandPolygonTool extends Tool {
 
     this.rubberband.dragTo([constrainX, constrainY]);
 
-    if (this.config.continuousDrawingWithMouse && evt.buttons === 1) {
+    if (this.config.continuousDrawingWithMouse && evt?.buttons === 1) {
       // Continuous drawing
       this.onMouseUp(x, y, evt)
     }
