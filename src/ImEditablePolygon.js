@@ -382,6 +382,7 @@ export default class ImEditablePolygon extends EditableShape {
     }
 
     if (updatedPoints.length < 3) return;
+    updatedPoints = updatedPoints.map(([x, y]) => ({ x, y }));
 
     // Delete useless midpoint
     this.midpoints.splice(updatedPoints.length).forEach((minPointElement) => {
