@@ -41,6 +41,93 @@ const reducePolygonPoints = (points, threshold) => {
   return reducedPoints;
 };
 
+// 计算点到线段的最短距离
+const perpendicularDistance = (point, lineStart, lineEnd) => {
+  const [x, y] = point;
+  const [x1, y1] = lineStart;
+  const [x2, y2] = lineEnd;
+
+  // 如果线段是同一个点，直接计算点间距
+  if (x1 === x2 && y1 === y2) {
+    return Math.hypot(x - x1, y - y1);
+  }
+
+  // 计算线段长度的平方
+  const segmentLengthSq = (x2 - x1) ** 2 + (y2 - y1) ** 2;
+  // 计算投影参数 t
+  const t = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) / segmentLengthSq;
+
+  let dx, dy;
+  if (t < 0) {
+    // 最近点为 lineStart
+    dx = x - x1;
+    dy = y - y1;
+  } else if (t > 1) {
+    // 最近点为 lineEnd
+    dx = x - x2;
+    dy = y - y2;
+  } else {
+    // 投影点在线段上
+    const nearestX = x1 + t * (x2 - x1);
+    const nearestY = y1 + t * (y2 - y1);
+    dx = x - nearestX;
+    dy = y - nearestY;
+  }
+
+  return Math.hypot(dx, dy);
+}
+
+// 递归应用道格拉斯-普克算法
+const douglasPeucker = (points, epsilon) => {
+  if (points.length <= 2) return [...points];
+
+  const start = 0;
+  const end = points.length - 1;
+
+  // 找到离首尾点连线最远的点
+  let maxDistance = 0;
+  let index = 0;
+  for (let i = 1; i < end; i++) {
+    const distance = perpendicularDistance(points[i], points[start], points[end]);
+    if (distance > maxDistance) {
+      maxDistance = distance;
+      index = i;
+    }
+  }
+
+  // 根据阈值 epsilon 决定是否分割
+  if (maxDistance > epsilon) {
+    const left = douglasPeucker(points.slice(0, index + 1), epsilon);
+    const right = douglasPeucker(points.slice(index), epsilon);
+    return [...left.slice(0, -1), ...right]; // 避免重复点
+  } else {
+    return [points[start], points[end]];
+  }
+}
+
+// 简化多边形入口函数
+const simplifyPolygon = (points, epsilon) => {
+  if (points.length === 0) return [];
+
+  // 确保多边形闭合（如果未闭合）
+  const isClosed = points[0][0] === points[points.length - 1][0] && points[0][1] === points[points.length - 1][1];
+  if (!isClosed) {
+    points = [...points, points[0]];
+  }
+
+  const simplified = douglasPeucker(points, epsilon);
+
+  // 重新闭合（如果被打开）
+  if (
+    simplified.length > 0 &&
+    (simplified[0][0] !== simplified[simplified.length - 1][0] || simplified[0][1] !== simplified[simplified.length - 1][1])
+  ) {
+    simplified.push(simplified[0]);
+  }
+
+  return simplified;
+}
+
 export default class ImEditablePolygon extends EditableShape {
 
   constructor(annotation, g, config, env) {
@@ -284,11 +371,16 @@ export default class ImEditablePolygon extends EditableShape {
     }
   }
 
-  reducePoints = (threshold = 0) => {
-    const updatedPoints = reducePolygonPoints(
-      getPoints(this.shape).map((a) => [a.x, a.y]),
-      threshold
-    ).map((a) => ({ x: a[0], y: a[1] }));
+  simplify = (threshold = 0, type = 0) => {
+    const points = getPoints(this.shape).map(({ x, y }) => [x, y]);
+    let updatedPoints = [];
+
+    if (type === 0) {
+      updatedPoints = reducePolygonPoints(points, threshold);
+    } else if (type === 1) {
+      updatedPoints = simplifyPolygon(points, threshold);
+    }
+
     if (updatedPoints.length < 3) return;
 
     // Delete useless midpoint
@@ -309,9 +401,14 @@ export default class ImEditablePolygon extends EditableShape {
     this.setPoints(updatedPoints);
 
     // Update SVG
-    const points = getPoints(this.shape).map(({ x, y }) => [x, y]);
-    this.emit('update', toSVGTarget(points, this.env.image));    
-  };
+    this.emit(
+      'update',
+      toSVGTarget(
+        getPoints(this.shape).map(({ x, y }) => [x, y]),
+        this.env.image
+      )
+    );
+  }
 
   onMoveShape = pos => {
     const constrain = (coord, delta, max) =>
