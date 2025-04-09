@@ -379,6 +379,7 @@ export default class ImEditablePolygon extends EditableShape {
       updatedPoints = reducePolygonPoints(points, threshold);
     } else if (type === 1) {
       updatedPoints = simplifyPolygon(points, threshold);
+      updatedPoints.pop();
     }
 
     if (updatedPoints.length < 3) return;

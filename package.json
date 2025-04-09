@@ -1,6 +1,6 @@
 {
   "name": "@cogic/annotorious-better-polygon",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "An improved polygon editing tool with more features and better usability",
   "main": "dist/annotorious-better-polygon.js",
   "scripts": {
