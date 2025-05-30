@@ -62,6 +62,10 @@ export default class ImRubberbandPolygon extends ToolLike {
     document.addEventListener('keydown', this.onKeyDown);
   }
 
+  _getHandleRadius = () => {
+    return this.config.handleRadius || 6
+  }
+
   addPoint = (evt) => {
     const newPoints = [...this.points, this.mousepos];
 
@@ -111,14 +115,14 @@ export default class ImRubberbandPolygon extends ToolLike {
     const d = this.getDistanceToStart();
 
     // Display close handle if distance is close
-    if (d <= (this.config.handleRadius || 6)) {
+    if (this.isClosable()) {
       this.closeHandle.style.display = null;
     } else { 
       this.closeHandle.style.display = 'none';
     }
 
     // Snap if nearby
-    if (d <= (this.config.handleRadius || 6)) {
+    if (this.isClosable()) {
       this.mousepos = this.points[0];
     }
 
@@ -150,7 +154,7 @@ export default class ImRubberbandPolygon extends ToolLike {
    */ 
   isClosable = () => {
     const d = this.getDistanceToStart();
-    return d < 6 * this.scale;
+    return d <= this._getHandleRadius();
   }
 
   onScaleChanged = scale => {
@@ -159,7 +163,7 @@ export default class ImRubberbandPolygon extends ToolLike {
     const inner = this.closeHandle.querySelector('.a9s-handle-inner');
     const outer = this.closeHandle.querySelector('.a9s-handle-outer');
 
-    const radius = scale * (this.config.handleRadius || 6);
+    const radius = scale * this._getHandleRadius();
 
     inner.setAttribute('r', radius);
     outer.setAttribute('r', radius);
