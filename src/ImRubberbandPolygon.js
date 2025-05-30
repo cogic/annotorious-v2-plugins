@@ -59,7 +59,7 @@ export default class ImRubberbandPolygon extends ToolLike {
 
     g.appendChild(this.container);
 
-    this.svg.addEventListener('keydown', this.onKeyDown);
+    document.addEventListener('keydown', this.onKeyDown);
   }
 
   addPoint = (evt) => {
@@ -97,7 +97,7 @@ export default class ImRubberbandPolygon extends ToolLike {
   }
 
   destroy = () => {
-    this.svg.removeEventListener('keydown', this.onKeyDown);
+    document.removeEventListener('keydown', this.onKeyDown);
 
     this.container.parentNode.removeChild(this.container);
   }
