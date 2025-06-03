@@ -371,7 +371,7 @@ export default class ImEditablePolygon extends EditableShape {
     }
   }
 
-  simplify = (threshold = 0, type = 0) => {
+  simplify = (threshold = 0, type = 0, minPoints = 3) => {
     const points = getPoints(this.shape).map(({ x, y }) => [x, y]);
     let updatedPoints = [];
 
@@ -382,7 +382,7 @@ export default class ImEditablePolygon extends EditableShape {
       updatedPoints.pop();
     }
 
-    if (updatedPoints.length < 3) return;
+    if (updatedPoints.length < minPoints) return;
     updatedPoints = updatedPoints.map(([x, y]) => ({ x, y }));
 
     // Delete useless midpoint
