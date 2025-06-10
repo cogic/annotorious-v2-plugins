@@ -30,6 +30,6 @@
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
-    "@cogic/annotorious": "^2.7.16"
+    "@cogic/annotorious": "^2.7.18"
   }
 }
