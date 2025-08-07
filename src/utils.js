@@ -1,3 +1,5 @@
+import { addClass, hasClass, removeClass } from '@cogic/annotorious/src/util/SVG';
+
 /**
  * 判断线段是否相交
  * 参考 https://www.cnblogs.com/fangsmile/articles/8881139.html
@@ -38,16 +40,30 @@ function isSegmentsIntersect(a, b, c, d) {
  */
 export function hasIntersectingEdges(points) {
   const n = points.length;
+  const transPos = (pos) => {
+    return Array.isArray(pos) ? { x: pos[0], y: pos[1] } : pos;
+  };
   for (let i = 0; i <= n - 3; i++) {
-    const p1 = points[i];
-    const p2 = points[i + 1];
+    const p1 = transPos(points[i]);
+    const p2 = transPos(points[i + 1]);
     for (let j = i + 1; j <= n - 2; j++) {
-      const p3 = points[j];
-      const p4 = points[j + 1];
+      const p3 = transPos(points[j]);
+      const p4 = transPos(points[j + 1]);
       if (isSegmentsIntersect(p1, p2, p3, p4)) {
         return [p1, p2, p3, p4];
       }
     }
   }
   return false;
+}
+
+/**
+ * Check and mark self-intersecting polygon
+ */
+export function markSelfIntersecting(shape, selfIntersecting) {
+  if (selfIntersecting) {
+    shape && !hasClass(shape, 'self-intersecting') && addClass(shape, 'self-intersecting');
+  } else {
+    shape && hasClass(shape, 'self-intersecting') && removeClass(shape, 'self-intersecting');
+  }
 }

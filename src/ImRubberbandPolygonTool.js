@@ -28,6 +28,10 @@ export default class ImRubberbandPolygonTool extends Tool {
     return this._isDrawing;
   }
 
+  isSelfIntersecting = (points) => {
+    return (this.config.checkSelfIntersecting || hasIntersectingEdges)(points);
+  }
+
   startDrawing = (x, y, startOnSingleClick) => {
     this._isDrawing = true;
     this._startOnSingleClick = startOnSingleClick;
@@ -71,7 +75,7 @@ export default class ImRubberbandPolygonTool extends Tool {
       if (
         !(evt.ctrlKey && evt.shiftKey && this.config.enableIntersectionWithShortcut) &&
         this.config.preventIntersection &&
-        hasIntersectingEdges([...this.rubberband.points, this.rubberband.mousepos, this.rubberband.points[0]].map((point) => ({ x: point[0], y: point[1] })))
+        this.isSelfIntersecting([...this.rubberband.points, this.rubberband.mousepos, this.rubberband.points[0]])
       ) {
         this.config.onPreventedIntersection?.();
         return;

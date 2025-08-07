@@ -3,7 +3,7 @@ import { Selection, ToolLike } from '@cogic/annotorious/src/tools/Tool';
 import Mask from '@cogic/annotorious/src/tools/polygon/PolygonMask';
 
 import { toSVGTarget } from './ImRubberbandPolygonTool';
-import { hasIntersectingEdges } from './utils';
+import { hasIntersectingEdges, markSelfIntersecting } from './utils';
 
 export default class ImRubberbandPolygon extends ToolLike {
 
@@ -62,6 +62,10 @@ export default class ImRubberbandPolygon extends ToolLike {
     document.addEventListener('keydown', this.onKeyDown);
   }
 
+  isSelfIntersecting = (points) => {
+    return (this.config.checkSelfIntersecting || hasIntersectingEdges)(points);
+  }
+
   _getHandleRadius = () => {
     return this.config.handleRadius || 6
   }
@@ -72,7 +76,7 @@ export default class ImRubberbandPolygon extends ToolLike {
     if (
       !(evt.ctrlKey && evt.shiftKey && this.config.enableIntersectionWithShortcut) &&
       this.config.preventIntersection &&
-      hasIntersectingEdges([...newPoints].map((point) => ({ x: point[0], y: point[1] })))
+      this.isSelfIntersecting(newPoints)
     ) {
       this.config.onPreventedIntersection?.();
       return;
@@ -178,6 +182,8 @@ export default class ImRubberbandPolygon extends ToolLike {
 
   setPoints = arr => {
     const [head, ...tail]= arr;
+
+    markSelfIntersecting(this.selection, this.isSelfIntersecting(arr));
 
     const path = 
       `M ${head[0]} ${head[1]} ` + 

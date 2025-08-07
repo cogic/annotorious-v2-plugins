@@ -5,7 +5,7 @@ import { format, setFormatterElSize } from '@cogic/annotorious/src/util/Formatti
 import Mask from '@cogic/annotorious/src/tools/polygon/PolygonMask';
 
 import { toSVGTarget } from './ImRubberbandPolygonTool';
-import { hasIntersectingEdges } from './utils';
+import { hasIntersectingEdges, markSelfIntersecting } from './utils';
 
 const getPoints = shape =>
   Array.from(shape.querySelector('.a9s-inner').points);
@@ -176,6 +176,12 @@ export default class ImEditablePolygon extends EditableShape {
     this.selected = [];
 
     this.lastMouseDown = null;
+
+    markSelfIntersecting(this.shape, this.isSelfIntersecting([...corners, corners[0]]));
+  }
+
+  isSelfIntersecting = (points) => {
+    return (this.config.checkSelfIntersecting || hasIntersectingEdges)(points);
   }
 
   _isCornerDistanceTooSmall = (thisCorner, nextCorner) => {
@@ -485,10 +491,11 @@ export default class ImEditablePolygon extends EditableShape {
       };
     });
 
+    const selfIntersecting = this.isSelfIntersecting([...updatedPoints, updatedPoints[0]]);
     if (
       !(evt.ctrlKey && evt.shiftKey && this.config.enableIntersectionWithShortcut) &&
       this.config.preventIntersection &&
-      hasIntersectingEdges([...updatedPoints, updatedPoints[0]])
+      selfIntersecting
     ) {
       this.config.onPreventedIntersection?.();
       return;
@@ -572,6 +579,8 @@ export default class ImEditablePolygon extends EditableShape {
   }
 
   setPoints = points => {
+    markSelfIntersecting(this.shape, this.isSelfIntersecting([...points, points[0]]));
+
     // Not using .toFixed(1) because that will ALWAYS
     // return one decimal, e.g. "15.0" (when we want "15")
     const round = num =>
