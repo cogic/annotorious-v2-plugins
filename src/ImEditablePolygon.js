@@ -383,7 +383,11 @@ export default class ImEditablePolygon extends EditableShape {
     }
 
     if (updatedPoints.length < minPoints) return;
-    updatedPoints = updatedPoints.map(([x, y]) => ({ x, y }));
+    this.overridePoints(updatedPoints);
+  }
+
+  overridePoints = (points) => {
+    const updatedPoints = points.map(([x, y]) => ({ x, y }));
 
     // Delete useless midpoint
     this.midpoints.splice(updatedPoints.length).forEach((minPointElement) => {
