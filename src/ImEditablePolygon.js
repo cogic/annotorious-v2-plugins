@@ -357,6 +357,10 @@ export default class ImEditablePolygon extends EditableShape {
 
     // Update SVG
     const points = getPoints(this.shape).map(({x, y}) => [x, y]);
+
+    // dispatch 'mouseleave' to set currentHover to null
+    this.shape.dispatchEvent(new Event('mouseleave'));
+
     this.emit('update', toSVGTarget(points, this.env.image));
   }
 
