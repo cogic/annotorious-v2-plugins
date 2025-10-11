@@ -7,8 +7,16 @@ import Mask from '@cogic/annotorious/src/tools/polygon/PolygonMask';
 import { toSVGTarget } from './ImRubberbandPolygonTool';
 import { hasIntersectingEdges, markSelfIntersecting } from './utils';
 
-const getPoints = shape =>
-  Array.from(shape.querySelector('.a9s-inner').points);
+const getPoints = shape => {
+  return shape
+    .querySelector('.a9s-inner')
+    .getAttribute('points')
+    .split(' ')
+    .map((pair) => {
+      const [x, y] = pair.split(',').map(Number);
+      return { x, y };
+    });
+}
 
 const getBBox = shape =>
   shape.querySelector('.a9s-inner').getBBox();
@@ -587,8 +595,13 @@ export default class ImEditablePolygon extends EditableShape {
 
     // Not using .toFixed(1) because that will ALWAYS
     // return one decimal, e.g. "15.0" (when we want "15")
-    const round = num =>
-      Math.round(10 * num) / 10;
+    const round = (num) => {
+      const precision = this.config.polygonPointPositionPrecision || 1;
+      if (precision < 0) {
+        return num
+      }
+      return Math.round(10 ** precision * num) / 10 ** precision;
+    };
 
     // Set polygon points
     const str = points.map(pt => `${round(pt.x)},${round(pt.y)}`).join(' ');
