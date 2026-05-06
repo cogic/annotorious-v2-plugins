@@ -407,15 +407,25 @@ export default class ImEditablePolygon extends EditableShape {
   overridePoints = (points) => {
     const updatedPoints = points.map(([x, y]) => ({ x, y }));
 
-    // Delete useless midpoint
-    this.midpoints.splice(updatedPoints.length).forEach((minPointElement) => {
-      minPointElement.parentNode.removeChild(minPointElement);
-    });
+    if(this.midpoints.length < updatedPoints.length) {
+      // Add missing midpoints
+      this.midpoints.push(...new Array(updatedPoints.length - this.midpoints.length).fill(0).map(() => this.createMidpoint([{x: 0, y: 0}], 0)));
+    } else {
+      // Delete needless midpoints
+      this.midpoints.splice(updatedPoints.length).forEach((minPointElement) => {
+        minPointElement.parentNode.removeChild(minPointElement);
+      });
+    }
 
-    // Delete old corner handle
-    this.cornerHandles.splice(updatedPoints.length).forEach((handle) => {
-      handle.parentNode.removeChild(handle);
-    });
+    if(this.cornerHandles.length < updatedPoints.length) {
+      // Add missing corner handles
+      this.cornerHandles.push(...new Array(updatedPoints.length - this.cornerHandles.length).fill(0).map(() => this.createCornerHandle({x: 0, y: 0})));
+    } else {
+      // Delete needless corner handles
+      this.cornerHandles.splice(updatedPoints.length).forEach((handle) => {
+        handle.parentNode.removeChild(handle);
+      });
+    }
 
     // Clear corner dragged element + selection
     this.grabbedElement = null;
